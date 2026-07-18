@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: aurastadium-2026
+    env: node
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PORT
+        value: 3000
+    plan: free
