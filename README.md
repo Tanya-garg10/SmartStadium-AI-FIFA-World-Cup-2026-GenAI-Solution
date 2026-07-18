@@ -64,6 +64,126 @@ npm start
 - `npm run lint` - Run TypeScript type checking
 - `npm run clean` - Remove build artifacts
 
+## Deployment
+
+### Option 1: Vercel (Recommended for Frontend + Serverless)
+
+1. Install Vercel CLI:
+   ```bash
+   npm install -g vercel
+   ```
+
+2. Build the project:
+   ```bash
+   npm run build
+   ```
+
+3. Deploy:
+   ```bash
+   vercel
+   ```
+
+4. Set environment variables in Vercel dashboard:
+   - `GEMINI_API_KEY`
+
+### Option 2: Railway (Full Stack)
+
+1. Install Railway CLI:
+   ```bash
+   npm install -g @railway/cli
+   ```
+
+2. Login to Railway:
+   ```bash
+   railway login
+   ```
+
+3. Initialize and deploy:
+   ```bash
+   railway init
+   railway up
+   ```
+
+4. Add environment variables in Railway dashboard
+
+### Option 3: Render (Full Stack)
+
+1. Push your code to GitHub
+
+2. Create a new Web Service on Render
+
+3. Connect your GitHub repository
+
+4. Configure build settings:
+   - Build Command: `npm run build`
+   - Start Command: `npm start`
+
+5. Add environment variables:
+   - `GEMINI_API_KEY`
+
+### Option 4: Docker Deployment
+
+1. Create a `Dockerfile` in the project root:
+   ```dockerfile
+   FROM node:18-alpine
+   WORKDIR /app
+   COPY package*.json ./
+   RUN npm install
+   COPY . .
+   RUN npm run build
+   EXPOSE 3000
+   CMD ["npm", "start"]
+   ```
+
+2. Build and run:
+   ```bash
+   docker build -t aurastadium .
+   docker run -p 3000:3000 -e GEMINI_API_KEY=your_key aurastadium
+   ```
+
+### Option 5: Traditional VPS (AWS EC2, DigitalOcean, etc.)
+
+1. SSH into your server
+
+2. Install Node.js and npm
+
+3. Clone the repository:
+   ```bash
+   git clone https://github.com/Tanya-garg10/SmartStadium-AI-FIFA-World-Cup-2026-GenAI-Solution.git
+   cd SmartStadium-AI-FIFA-World-Cup-2026-GenAI-Solution
+   ```
+
+4. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+5. Set up environment:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your API key
+   ```
+
+6. Build and start:
+   ```bash
+   npm run build
+   npm start
+   ```
+
+7. Use PM2 for process management (recommended):
+   ```bash
+   npm install -g pm2
+   pm2 start dist/server.cjs --name aurastadium
+   pm2 save
+   pm2 startup
+   ```
+
+### Environment Variables for Production
+
+Make sure to set these in your deployment platform:
+- `GEMINI_API_KEY` - Your Google Gemini API key (required)
+- `PORT` - Port number (default: 3000, optional)
+
 ## Project Structure
 
 ```
