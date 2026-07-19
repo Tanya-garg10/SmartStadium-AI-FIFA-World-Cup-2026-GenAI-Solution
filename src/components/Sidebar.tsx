@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { 
   Activity, 
   Bot, 
@@ -15,7 +15,7 @@ interface SidebarProps {
   stadiumName: string;
 }
 
-export default function Sidebar({ activeTab, setActiveTab, stadiumName }: SidebarProps) {
+const Sidebar = memo(function Sidebar({ activeTab, setActiveTab, stadiumName }: SidebarProps) {
   const menuItems = [
     { id: 'live-ops', name: 'Live Ops Console', icon: Activity, description: 'Stadium Telemetry & Heatmap' },
     { id: 'copilot', name: 'Aura Copilot Chat', icon: Bot, description: 'Multi-lingual Fan AI Assistant' },
@@ -25,7 +25,7 @@ export default function Sidebar({ activeTab, setActiveTab, stadiumName }: Sideba
   ];
 
   return (
-    <aside id="vantage-sidebar" className="w-80 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 h-full text-slate-800">
+    <aside id="vantage-sidebar" className="w-80 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 h-full text-slate-800" role="complementary" aria-label="Application sidebar">
       <div>
         
         {/* Header Branding Panel */}
@@ -54,7 +54,7 @@ export default function Sidebar({ activeTab, setActiveTab, stadiumName }: Sideba
         </div>
 
         {/* Navigation Items list */}
-        <nav className="p-4 space-y-1.5">
+        <nav className="p-4 space-y-1.5" aria-label="Main navigation">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -63,13 +63,15 @@ export default function Sidebar({ activeTab, setActiveTab, stadiumName }: Sideba
                 key={item.id}
                 id={`sidebar-btn-${item.id}`}
                 onClick={() => setActiveTab(item.id)}
+                aria-pressed={isActive}
+                aria-current={isActive ? 'page' : undefined}
                 className={`w-full flex items-start gap-4 p-3.5 rounded-xl text-left transition-all group border ${
                   isActive 
                     ? 'bg-indigo-50 border-indigo-200 text-indigo-900 shadow-sm font-bold' 
                     : 'bg-transparent border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-100'
                 }`}
               >
-                <Icon className={`h-5 w-5 mt-0.5 shrink-0 transition-colors ${isActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'}`} />
+                <Icon className={`h-5 w-5 mt-0.5 shrink-0 transition-colors ${isActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'}`} aria-hidden="true" />
                 <div className="min-w-0">
                   <div className="font-bold text-sm leading-tight">{item.name}</div>
                   <div className="text-[11px] text-slate-500 group-hover:text-slate-600 truncate mt-0.5">{item.description}</div>
@@ -92,4 +94,6 @@ export default function Sidebar({ activeTab, setActiveTab, stadiumName }: Sideba
       </div>
     </aside>
   );
-}
+});
+
+export default Sidebar;

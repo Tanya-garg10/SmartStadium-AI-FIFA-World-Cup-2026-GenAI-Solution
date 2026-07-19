@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import Sidebar from './components/Sidebar';
-import LiveOpsDashboard from './components/LiveOpsDashboard';
-import AiCopilot from './components/AiCopilot';
-import IncidentDispatcher from './components/IncidentDispatcher';
-import SmartNavigation from './components/SmartNavigation';
-import ArchitecturePlaybook from './components/ArchitecturePlaybook';
 import { GateStatus, SectorStatus, Incident, Message } from './types';
+
+// Lazy load components for better performance
+const LiveOpsDashboard = lazy(() => import('./components/LiveOpsDashboard'));
+const AiCopilot = lazy(() => import('./components/AiCopilot'));
+const IncidentDispatcher = lazy(() => import('./components/IncidentDispatcher'));
+const SmartNavigation = lazy(() => import('./components/SmartNavigation'));
+const ArchitecturePlaybook = lazy(() => import('./components/ArchitecturePlaybook'));
 
 // Default initial simulation states
 const defaultGates: GateStatus[] = [
@@ -181,7 +183,16 @@ export default function App() {
 
         {/* Dynamic Display Area */}
         <main className="flex-1 flex flex-col overflow-hidden bg-slate-50">
-          {renderActiveView()}
+          <Suspense fallback={
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                <p className="text-slate-600 font-medium">Loading...</p>
+              </div>
+            </div>
+          }>
+            {renderActiveView()}
+          </Suspense>
         </main>
 
       </div>
