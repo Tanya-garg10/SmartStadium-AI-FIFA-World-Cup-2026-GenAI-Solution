@@ -11,6 +11,36 @@ const PORT = 3000;
 
 app.use(express.json());
 
+// Security headers and CSP
+app.use((req, res, next) => {
+  // Prevent clickjacking
+  res.setHeader('X-Frame-Options', 'DENY');
+  // Prevent MIME type sniffing
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  // Enable XSS protection
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  // Strict transport security (only in production)
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+  // Content Security Policy
+  res.setHeader('Content-Security-Policy', 
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+    "style-src 'self' 'unsafe-inline'; " +
+    "img-src 'self' data: https:; " +
+    "font-src 'self' data:; " +
+    "connect-src 'self' https://generativelanguage.googleapis.com; " +
+    "frame-ancestors 'none';"
+  );
+  // Referrer policy
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  // Permissions policy
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  
+  next();
+});
+
 // Lazy-loaded Gemini Client helper
 let aiClient: GoogleGenAI | null = null;
 

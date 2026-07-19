@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Sidebar from './components/Sidebar';
 import LiveOpsDashboard from './components/LiveOpsDashboard';
 import AiCopilot from './components/AiCopilot';
@@ -64,38 +64,43 @@ export default function App() {
     sectors: defaultSectors,
   });
 
-  const fetchLiveState = async () => {
+  const fetchLiveState = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await fetch('/api/stadium/live-state');
-      if (res.ok) {
-        const data = await res.json();
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      // Validate data structure
+      if (data && typeof data === 'object') {
         setStadiumState((prev) => ({
           ...prev,
           stadium: data.stadium || prev.stadium,
-          overallOccupancy: data.overallOccupancy ?? prev.overallOccupancy,
-          gates: data.gates || prev.gates,
-          sectors: data.sectors || prev.sectors,
+          overallOccupancy: typeof data.overallOccupancy === 'number' ? data.overallOccupancy : prev.overallOccupancy,
+          gates: Array.isArray(data.gates) ? data.gates : prev.gates,
+          sectors: Array.isArray(data.sectors) ? data.sectors : prev.sectors,
         }));
       }
     } catch (error) {
       console.error("Failed to fetch live stadium operations state:", error);
+      // Keep previous state on error
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchLiveState();
   }, []);
 
   // Merge incidents into the stadium state object so LiveOpsDashboard can read them
-  const mergedStadiumState = {
+  const mergedStadiumState = useMemo(() => ({
     ...stadiumState,
     incidents
-  };
+  }), [stadiumState, incidents]);
 
-  const renderActiveView = () => {
+  const renderActiveView = useCallback(() => {
     switch (activeTab) {
       case 'live-ops':
         return (
@@ -134,7 +139,7 @@ export default function App() {
           />
         );
     }
-  };
+  }, [activeTab, mergedStadiumState, setStadiumState, isLoading, fetchLiveState, chatHistory, setChatHistory, incidents, setIncidents]);
 
   return (
     <div id="vantage-container" className="h-screen w-full bg-slate-50 flex flex-col overflow-hidden font-sans text-slate-900 border-8 border-indigo-600">
